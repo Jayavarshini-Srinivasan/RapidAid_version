@@ -1,0 +1,12 @@
+/* Settings Page Styles - Responsive */
+
+.settings-container {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 1rem;
+  }
+}
+

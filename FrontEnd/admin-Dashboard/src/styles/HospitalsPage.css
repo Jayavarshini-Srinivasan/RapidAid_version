@@ -1,0 +1,12 @@
+/* Hospitals Page Styles - Responsive */
+
+.hospitals-container {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .hospitals-container {
+    overflow-x: auto;
+  }
+}
+

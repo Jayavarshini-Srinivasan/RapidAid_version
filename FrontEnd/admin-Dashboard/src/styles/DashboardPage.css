@@ -1,0 +1,18 @@
+/* Dashboard Page Styles - Responsive with viewport units */
+
+.dashboard-container {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 0.5rem;
+  }
+}
+
