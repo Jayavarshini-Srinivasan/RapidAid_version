@@ -8,7 +8,6 @@ import {
   CardContent,
   Grid,
   LinearProgress,
-  Chip, // <-- added
 } from '@mui/material';
 import {
   LocalHospitalOutlined,
@@ -92,7 +91,7 @@ export default function HospitalsPage() {
           totalBeds,
           availableBeds,
           occupiedBeds,
-          occupancyRate: totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0, // <-- guard divide-by-zero
+          occupancyRate: Math.round((occupiedBeds / totalBeds) * 100),
           incoming: 8,
           wards: sampleHospitalCapacity.wards,
         });
