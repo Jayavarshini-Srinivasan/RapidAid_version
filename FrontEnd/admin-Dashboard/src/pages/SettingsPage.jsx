@@ -20,6 +20,9 @@ import {
 import { SettingsOutlined, SecurityOutlined, HistoryOutlined } from '@mui/icons-material';
 import '../styles/SettingsPage.css';
 import { useThemeMode } from '../context/ThemeModeContext';
+import { db } from '../../firebaseConfig';
+import { writeBatch, doc, collection } from 'firebase/firestore';
+import { sampleDrivers, samplePatients, sampleHospitals, sampleEmergencies } from '../utils/sampleData';
 
 const themePresets = [
   { id: 'violet', name: 'Aurora Violet', accent: '#6366f1', description: 'Balanced, calm command tone.' },
@@ -48,6 +51,26 @@ export default function SettingsPage() {
     downtimeAlert: '15',
     dataRetention: '90',
   });
+  const [syncStatus, setSyncStatus] = useState('Idle');
+  const [syncing, setSyncing] = useState(false);
+
+  const pushSampleToFirestore = async () => {
+    try {
+      setSyncing(true);
+      setSyncStatus('Syncing');
+      const batch = writeBatch(db);
+      sampleDrivers.forEach((d) => batch.set(doc(collection(db, 'drivers'), d.id), d));
+      samplePatients.forEach((p) => batch.set(doc(collection(db, 'patients'), p.id), p));
+      sampleHospitals.forEach((h) => batch.set(doc(collection(db, 'hospitals'), h.id), h));
+      sampleEmergencies.forEach((e) => batch.set(doc(collection(db, 'emergencies'), e.id), e));
+      await batch.commit();
+      setSyncStatus('Synced');
+    } catch (e) {
+      setSyncStatus('Failed');
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const handleRoleChange = (id, newRole) => {
     setRoles((prev) => prev.map((role) => (role.id === id ? { ...role, role: newRole } : role)));
@@ -110,9 +133,9 @@ export default function SettingsPage() {
                   setAdminSettings((prev) => ({ ...prev, downtimeAlert: e.target.value }))
                 }
               >
-                <MenuItem value="5">Alert if idle > 5 min</MenuItem>
-                <MenuItem value="15">Alert if idle > 15 min</MenuItem>
-                <MenuItem value="30">Alert if idle > 30 min</MenuItem>
+                <MenuItem value="5">Alert if idle &gt; 5 min</MenuItem>
+                <MenuItem value="15">Alert if idle &gt; 15 min</MenuItem>
+                <MenuItem value="30">Alert if idle &gt; 30 min</MenuItem>
               </Select>
               <Select
                 fullWidth
@@ -126,8 +149,8 @@ export default function SettingsPage() {
                 <MenuItem value="90">Retain audit logs 90 days</MenuItem>
                 <MenuItem value="365">Retain audit logs 1 year</MenuItem>
               </Select>
-              <Button variant="contained" sx={{ alignSelf: 'flex-start' }}>
-                Apply Admin Policy
+              <Button variant="contained" sx={{ alignSelf: 'flex-start' }} onClick={pushSampleToFirestore} disabled={syncing}>
+                {syncing ? 'Syncing…' : 'Push Sample Data to Firebase'}
               </Button>
             </Box>
           </Paper>
@@ -206,9 +229,7 @@ export default function SettingsPage() {
                   Align dashboards with operations center ambience
                 </Typography>
               </Box>
-              <Button variant="outlined" size="small" onClick={toggleTheme}>
-                Toggle {mode === 'dark' ? 'Light' : 'Dark'} Mode
-              </Button>
+              <Chip icon={<HistoryOutlined />} label={syncStatus} size="small" color={syncStatus === 'Synced' ? 'success' : syncStatus === 'Failed' ? 'error' : 'default'} />
             </Box>
 
             <Stack spacing={2}>

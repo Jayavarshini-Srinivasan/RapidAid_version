@@ -8,6 +8,7 @@ const driverRoutes = require('./routes/driver.routes');
 const adminRoutes = require('./routes/admin.routes');
 const mlRoutes = require('./routes/ml.routes');
 const caseRoutes = require('./routes/case.routes'); // /// ADDED
+const hospitalRoutes = require('./routes/hospital.routes'); // /// ADDED
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/api/driver', driverRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/ml', mlRoutes);
 app.use('/api/case', caseRoutes); // /// ADDED
+app.use('/api/hospital', hospitalRoutes); // /// ADDED
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'RapidAid API is running' });

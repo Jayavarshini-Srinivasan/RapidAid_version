@@ -18,18 +18,17 @@ import {
   Chip,
   Avatar,
 } from '@mui/material';
-import {
-  DashboardOutlined,
-  PublicOutlined,
-  LocalHospitalOutlined,
-  Groups2Outlined,
-  NotificationsOutlined,
-  SettingsOutlined,
-  Menu as MenuIcon,
-  LogoutOutlined,
-  LightModeOutlined,
-  DarkModeOutlined,
-} from '@mui/icons-material';
+// Import icons individually to ensure optimal tree-shaking
+import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
+import PublicOutlined from '@mui/icons-material/PublicOutlined';
+import LocalHospitalOutlined from '@mui/icons-material/LocalHospitalOutlined';
+import Groups2Outlined from '@mui/icons-material/Groups2Outlined';
+import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
+import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
+import MenuIcon from '@mui/icons-material/Menu';
+import LogoutOutlined from '@mui/icons-material/LogoutOutlined';
+import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
+import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import { useAuth } from '../context/AuthContext';
 import { useThemeMode } from '../context/ThemeModeContext';
 import '../styles/Layout.css';
@@ -39,6 +38,7 @@ const drawerWidth = 280;
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardOutlined />, path: '/dashboard' },
   { text: 'Live Map', icon: <PublicOutlined />, path: '/map' },
+  { text: 'Critical Zones', icon: <PublicOutlined />, path: '/critical-zones' }, // /// ADDED
   { text: 'Hospitals', icon: <LocalHospitalOutlined />, path: '/hospitals' },
   { text: 'Users', icon: <Groups2Outlined />, path: '/users' },
   { text: 'Notifications', icon: <NotificationsOutlined />, path: '/notifications' },

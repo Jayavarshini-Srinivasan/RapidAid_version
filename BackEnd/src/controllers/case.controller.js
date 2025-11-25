@@ -1,4 +1,5 @@
 const caseService = require('../services/case.service'); // /// ADDED
+const { seedHospitalsIndia } = require('../services/hospital.service'); // /// ADDED
 
 const broadcast = (req, event, payload) => { // /// ADDED
   const io = req.app.get('io'); // /// ADDED
@@ -43,6 +44,7 @@ module.exports = { // /// ADDED
   updateCaseSeverity, // /// ADDED
   seedSampleCases: async (req, res) => { // /// ADDED
     try { // /// ADDED
+      await seedHospitalsIndia(); // /// ADDED
       const data = await caseService.seedSampleCases(); // /// ADDED
       return res.json({ success: true, data }); // /// ADDED
     } catch (error) { // /// ADDED

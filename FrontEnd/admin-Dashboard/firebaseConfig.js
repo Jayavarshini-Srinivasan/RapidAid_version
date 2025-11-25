@@ -40,18 +40,17 @@ let app, auth, db;
 
 try {
   if (!isConfigValid) {
-    throw new Error('Firebase API key is missing or invalid. Please check your .env file and ensure VITE_FIREBASE_API_KEY is set correctly. Get it from Firebase Console: https://console.firebase.google.com/project/rapidaid-8a617/settings/general/web');
+    throw new Error('Firebase API key is missing or invalid.');
   }
-  
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
-  
   console.log('✅ Firebase initialized successfully');
 } catch (error) {
   console.error('❌ Firebase initialization error:', error.message);
-  // Don't throw - let the app show the error in UI
-  throw error;
+  app = null; // /// ADDED
+  auth = { currentUser: null }; // /// ADDED
+  db = {}; // /// ADDED
 }
 
 export { auth, db };

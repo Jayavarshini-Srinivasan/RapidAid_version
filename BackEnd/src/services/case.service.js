@@ -1,4 +1,5 @@
 const { upsertCaseLocation, upsertCaseSeverity, seedCaseBatch } = require('../repositories/case.repository'); // /// ADDED
+const { findNearestHospital } = require('./hospital.service'); // /// ADDED
 
 const updateLocation = async (caseId, location) => { // /// ADDED
   if (!location || typeof location.lat !== 'number' || typeof location.lng !== 'number') { // /// ADDED
@@ -27,6 +28,7 @@ const seedSampleCases = async () => { // /// ADDED
       speed: '44 mph', // /// ADDED
       eta: '5 min', // /// ADDED
       location: { lat: 28.6328, lng: 77.2197 }, // /// ADDED
+      accidentLocation: { lat: 28.6345, lng: 77.2165 }, // /// ADDED
       severity: 'HIGH', // /// ADDED
     }, // /// ADDED
     { // /// ADDED
@@ -39,6 +41,7 @@ const seedSampleCases = async () => { // /// ADDED
       speed: '35 mph', // /// ADDED
       eta: '8 min', // /// ADDED
       location: { lat: 19.076, lng: 72.8777 }, // /// ADDED
+      accidentLocation: { lat: 19.079, lng: 72.880 }, // /// ADDED
       severity: 'MEDIUM', // /// ADDED
     }, // /// ADDED
     { // /// ADDED
@@ -51,6 +54,7 @@ const seedSampleCases = async () => { // /// ADDED
       speed: '38 mph', // /// ADDED
       eta: '6 min', // /// ADDED
       location: { lat: 12.9735, lng: 77.6082 }, // /// ADDED
+      accidentLocation: { lat: 12.9755, lng: 77.6030 }, // /// ADDED
       severity: 'LOW', // /// ADDED
     }, // /// ADDED
     { // /// ADDED
@@ -63,6 +67,7 @@ const seedSampleCases = async () => { // /// ADDED
       speed: '41 mph', // /// ADDED
       eta: '7 min', // /// ADDED
       location: { lat: 17.4474, lng: 78.3762 }, // /// ADDED
+      accidentLocation: { lat: 17.4490, lng: 78.3725 }, // /// ADDED
       severity: 'HIGH', // /// ADDED
     }, // /// ADDED
     { // /// ADDED
@@ -75,6 +80,7 @@ const seedSampleCases = async () => { // /// ADDED
       speed: '39 mph', // /// ADDED
       eta: '6 min', // /// ADDED
       location: { lat: 18.5204, lng: 73.8567 }, // /// ADDED
+      accidentLocation: { lat: 18.5180, lng: 73.8590 }, // /// ADDED
       severity: 'MEDIUM', // /// ADDED
     }, // /// ADDED
     { // /// ADDED
@@ -87,6 +93,7 @@ const seedSampleCases = async () => { // /// ADDED
       speed: '37 mph', // /// ADDED
       eta: '9 min', // /// ADDED
       location: { lat: 13.0418, lng: 80.2337 }, // /// ADDED
+      accidentLocation: { lat: 13.0390, lng: 80.2350 }, // /// ADDED
       severity: 'HIGH', // /// ADDED
     }, // /// ADDED
     { // /// ADDED
@@ -99,6 +106,7 @@ const seedSampleCases = async () => { // /// ADDED
       speed: '33 mph', // /// ADDED
       eta: '4 min', // /// ADDED
       location: { lat: 23.0225, lng: 72.5714 }, // /// ADDED
+      accidentLocation: { lat: 23.0240, lng: 72.5690 }, // /// ADDED
       severity: 'LOW', // /// ADDED
     }, // /// ADDED
     { // /// ADDED
@@ -111,10 +119,21 @@ const seedSampleCases = async () => { // /// ADDED
       speed: '36 mph', // /// ADDED
       eta: '7 min', // /// ADDED
       location: { lat: 22.5535, lng: 88.3507 }, // /// ADDED
+      accidentLocation: { lat: 22.5550, lng: 88.3530 }, // /// ADDED
       severity: 'MEDIUM', // /// ADDED
     }, // /// ADDED
   ]; // /// ADDED
-  return seedCaseBatch(sampleCases); // /// ADDED
+  const enriched = []; // /// ADDED
+  for (const c of sampleCases) { // /// ADDED
+    try { // /// ADDED
+      const nearest = await findNearestHospital({ lat: c.accidentLocation.lat, lng: c.accidentLocation.lng, type: c.severity === 'HIGH' ? 'trauma' : undefined }); // /// ADDED
+      c.destinationHospitalId = nearest.hospital?.id || null; // /// ADDED
+    } catch (_) { // /// ADDED
+      c.destinationHospitalId = null; // /// ADDED
+    } // /// ADDED
+    enriched.push(c); // /// ADDED
+  } // /// ADDED
+  return seedCaseBatch(enriched); // /// ADDED
 }; // /// ADDED
 
 module.exports = { // /// ADDED
