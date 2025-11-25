@@ -28,6 +28,8 @@ import {
   RefreshRounded,
 } from '@mui/icons-material';
 import { adminAPI } from '../services/api';
+import { db } from '../../firebaseConfig';
+import { setDoc, doc, collection } from 'firebase/firestore';
 import '../styles/DashboardPage.css';
 
 const timeframes = [
@@ -94,6 +96,7 @@ export default function DashboardPage() {
   const [timeframe, setTimeframe] = useState('24h');
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [persisting, setPersisting] = useState(false);
 
   useEffect(() => {
     loadMetrics();
@@ -105,9 +108,17 @@ export default function DashboardPage() {
     try {
       if (!silent) setLoading(true);
       setRefreshing(true);
-      const response = await adminAPI.getDashboardMetrics();
+      const response = await adminAPI.getDashboardMetrics(timeframe);
       setMetrics(response.data.data);
       setLastUpdated(new Date());
+      try {
+        setPersisting(true);
+        const payload = { timeframe, ...response.data.data, updated_at: new Date().toISOString() };
+        await setDoc(doc(collection(db, 'dashboard_metrics'), timeframe), payload, { merge: true });
+      } catch (_) {
+      } finally {
+        setPersisting(false);
+      }
     } catch (error) {
       console.error('Error loading metrics:', error);
     } finally {
@@ -210,6 +221,12 @@ export default function DashboardPage() {
           <Typography variant="body2" color="text.secondary">
             Updated {lastUpdated ? lastUpdated.toLocaleTimeString() : '—'}
           </Typography>
+          <Chip
+            label={persisting ? 'Saving…' : 'Saved'}
+            color={persisting ? 'default' : 'success'}
+            variant={persisting ? 'outlined' : 'filled'}
+            size="small"
+          />
           <IconButton onClick={() => loadMetrics(true)} disabled={refreshing}>
             <RefreshRounded className={refreshing ? 'spin' : ''} />
           </IconButton>

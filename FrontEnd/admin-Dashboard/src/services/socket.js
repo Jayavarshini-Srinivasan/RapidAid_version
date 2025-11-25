@@ -1,34 +1,43 @@
 import { io } from 'socket.io-client';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+const USE_SAMPLE_DATA = import.meta.env.VITE_USE_SAMPLE_DATA === 'true'; // /// ADDED
 
 let socket = null;
 
 export const initSocket = () => {
+  if (USE_SAMPLE_DATA) { // /// ADDED
+    return null; // /// ADDED
+  } // /// ADDED
   if (!socket) {
-    socket = io(SOCKET_URL, {
-      transports: ['websocket'],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 5,
-    });
+    try { // /// ADDED
+      socket = io(SOCKET_URL, {
+        transports: ['websocket'],
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionAttempts: 5,
+      });
 
-    socket.on('connect', () => {
-      console.log('✅ Socket.IO connected');
-    });
+      socket.on('connect', () => {
+        if (import.meta.env.VITE_DEBUG_SOCKET === 'true') console.log('✅ Socket.IO connected'); // /// ADDED
+      });
 
-    socket.on('disconnect', () => {
-      console.log('❌ Socket.IO disconnected');
-    });
+      socket.on('disconnect', () => {
+        if (import.meta.env.VITE_DEBUG_SOCKET === 'true') console.log('❌ Socket.IO disconnected'); // /// ADDED
+      });
 
-    socket.on('connect_error', (error) => {
-      console.error('Socket.IO connection error:', error);
-    });
+      socket.on('connect_error', (error) => {
+        if (import.meta.env.VITE_DEBUG_SOCKET === 'true') console.error('Socket.IO connection error:', error?.message || error); // /// ADDED
+      });
+    } catch (_) { // /// ADDED
+      socket = null; // /// ADDED
+    } // /// ADDED
   }
   return socket;
 };
 
 export const getSocket = () => {
+  if (USE_SAMPLE_DATA) return null; // /// ADDED
   if (!socket) {
     return initSocket();
   }
@@ -37,7 +46,7 @@ export const getSocket = () => {
 
 export const disconnectSocket = () => {
   if (socket) {
-    socket.disconnect();
+    try { socket.disconnect(); } catch (_) {}
     socket = null;
   }
 };
@@ -45,6 +54,9 @@ export const disconnectSocket = () => {
 // Socket event listeners for real-time updates
 export const setupSocketListeners = (callbacks) => {
   const socketInstance = getSocket();
+  if (!socketInstance) { // /// ADDED
+    return () => {}; // /// ADDED
+  } // /// ADDED
 
   // Driver location updates
   socketInstance.on('driverLocationUpdate', (data) => {

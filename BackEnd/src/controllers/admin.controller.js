@@ -30,7 +30,8 @@ const getAllEmergencies = async (req, res) => {
 
 const getDashboardMetrics = async (req, res) => {
   try {
-    const metrics = await adminService.getDashboardMetrics();
+    const timeframe = (req.query.timeframe || '24h').toLowerCase();
+    const metrics = await adminService.getDashboardMetrics(timeframe);
     return successResponse(res, metrics, 'Dashboard metrics retrieved');
   } catch (error) {
     return errorResponse(res, error.message, 400);
