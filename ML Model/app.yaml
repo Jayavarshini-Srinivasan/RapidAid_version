@@ -1,0 +1,16 @@
+runtime: python39
+
+env_variables:
+  PORT: 8080
+  RF_MODEL_PATH: "models/random_forest_model.pkl"
+  ACC_MODEL_PATH: "models/accelerometer_accident_detector.pkl"
+
+handlers:
+- url: /.*
+  script: auto
+  
+automatic_scaling:
+  min_instances: 1
+  max_instances: 10
+  target_cpu_utilization: 0.65
+  target_throughput_utilization: 0.65
